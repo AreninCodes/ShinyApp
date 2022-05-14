@@ -2,11 +2,9 @@ library(ggplot2)
 library(scales)
 library(tidyverse)
 library(plotly)
+library(gt)
 
 
-# setup datasets
-setwd("/Users/Nener/Documents/GitHub/ShinyApp") 
-death_table <- read.csv("death_percentage.csv")
 
 
 
@@ -14,7 +12,7 @@ death_table <- read.csv("death_percentage.csv")
 
 # creating text table for Death percentage overall
 
-
+death_percentage <- read.csv("https://raw.githubusercontent.com/AreninCodes/ShinyApp/main/death_percentage.csv")
 death_table <- death_percentage %>% 
   gt() %>%
   tab_options(
@@ -50,7 +48,7 @@ death_table
 #------------------------------------------------------------------------------
 
 # create bar plot for total death count
-total_death_count <- read.csv("total_death_count.csv")
+total_death_count <- read.csv("https://raw.githubusercontent.com/AreninCodes/ShinyApp/main/total_death_count.csv")
 total_death_count_highlight <- data.frame(total_death_count,
                                           highlight= c(1,0,0,0,0,0)
                                           ) 
@@ -87,7 +85,7 @@ totalcount
 #------------------------------------------------------------------------------
 
 # create heatmap for Percent Populated Infected
-percent_populated_infected <- read.csv("percent_populated_infected.csv")
+percent_populated_infected <- read.csv("https://raw.githubusercontent.com/AreninCodes/ShinyApp/main/percent_populated_infected.csv")
 
 world <- map_data("world")
 colnames(percent_populated_infected) <- c('region', 'Population', 'HighestInfectionCount', 'PercentPopulationInfected')
@@ -130,10 +128,11 @@ world_map
 
 # create line plot and forecast for specific countries percent population infected
 library(lubridate)
-library(readxl)
 
-specific_percent_population_infected <- read_excel("specific_percent_population_infected.xlsx")
-specific_percent_population_infected$date <- as.Date(specific_percent_population_infected$date, format = "%Y-%m-%d")
+specific_percent_population_infected <- read.csv("https://raw.githubusercontent.com/AreninCodes/ShinyApp/main/specific_percent_population_infected.csv")
+specific_percent_population_infected$date <- mdy(specific_percent_population_infected$date)
+specific_percent_population_infected <- transform(specific_percent_population_infected, PercentPopulationInfected = as.numeric(PercentPopulationInfected))
+
 countrytrends <-  
   ggplotly(
   ggplot(specific_percent_population_infected, aes(date, PercentPopulationInfected, color = Location)) +
@@ -207,21 +206,6 @@ ui <- dashboardPage(
                   collapsible = TRUE,
                   plotOutput("plot")
                 ),
-                
-                # box(
-                #   selectizeInput(
-                #     "countries3",
-                #     "Country Seleciton",
-                #     choices = c("All", unique(MergedCountries$region)),
-                #     options = list(
-                #       create = FALSE,
-                #       placeholder = "Search Me",
-                #       maxItems = '1',
-                #       onDropdownOpen = I("function($dropdown) {if (!this.lastQuery.length) {this.close(); this.settings.openOnFocus = false;}}"),
-                #       onType = I("function (str) {if (str === \"\") {this.close();}}")
-                #     )
-                #   )
-                # )
                 
                 box(
                   column(
